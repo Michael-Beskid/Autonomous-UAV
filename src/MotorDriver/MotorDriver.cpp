@@ -12,8 +12,6 @@
  *   Motor 2: pin 1 ---> back left
  *   Motor 3: pin 2 ---> back right
  *   Motor 4: pin 3 ---> front left
- *   Servo 1: pin 5 ---> ballast cylinder 1
- *   Servo 2: pin 6 ---> ballast cylinder 2
  *
  * @author Michael Beskid
  * Contact: mjbeskid@wpi.edu
@@ -28,14 +26,6 @@ const int MotorDriver::m2Pin = 1;
 const int MotorDriver::m3Pin = 2;
 const int MotorDriver::m4Pin = 3;
 
-// Define servo pins
-const int MotorDriver::servo1Pin = 6;
-const int MotorDriver::servo2Pin = 7;
-
-// Instantiate servo objects
-PWMServo servo1;
-PWMServo servo2;
-
 MotorDriver::MotorDriver() {}
 
 /**
@@ -46,12 +36,7 @@ void MotorDriver::init() {
   pinMode(m2Pin, OUTPUT);
   pinMode(m3Pin, OUTPUT);
   pinMode(m4Pin, OUTPUT);
-  servo1.attach(servo1Pin, 900, 2100); //Pin, min PWM value, max PWM value
-  servo2.attach(servo2Pin, 900, 2100);
 
-    // Arm servo channels
-  servo1.write(0); // Command servo angle from 0-180 degrees (1000 to 2000 PWM)
-  servo2.write(0); // Set these to 90 for servos if you do not want them to briefly max out on startup. Keep these at 0 if you are using servo outputs for motors
   delay(5);
 
   // Arm OneShot125 motors
@@ -78,17 +63,6 @@ void MotorDriver::setMotorCommands(float m1, float m2, float m3, float m4) {
 }
 
 /**
- * @brief Set normalized [0-1] scaled commands for the servos.
- * 
- * @param s1 Scaled command for servo 1.
- * @param s2 Scaled command for servo 2.
- */
-void MotorDriver::setServoCommands(float s1, float s2) {
-  s1_command_scaled = s1;
-  s2_command_scaled = s2;
-}
-
-/**
  * @brief Scale normalized actuator commands to values for ESC/Servo protocol
  * 
  * From dRehmFlight:
@@ -109,13 +83,6 @@ void MotorDriver::scaleCommands() {
   m2_command_PWM = constrain(m2_command_PWM, 125, 250);
   m3_command_PWM = constrain(m3_command_PWM, 125, 250);
   m4_command_PWM = constrain(m4_command_PWM, 125, 250);
-
-  //Scaled to 0-180 for servo library
-  s1_command_PWM = s1_command_scaled*180;
-  s2_command_PWM = s2_command_scaled*180;
-  //Constrain commands to servos within servo library bounds
-  s1_command_PWM = constrain(s1_command_PWM, 0, 180);
-  s2_command_PWM = constrain(s2_command_PWM, 0, 180);
 
 }
 
@@ -166,14 +133,6 @@ void MotorDriver::commandMotors() {
       flagM4 = 1;
     } 
   }
-}
-
-/**
- * @brief Writes scaled commands to servos.
- */
-void MotorDriver::commandServos() {
-  servo1.write(s1_command_PWM);
-  servo2.write(s2_command_PWM);
 }
 
 /**
@@ -231,14 +190,4 @@ void MotorDriver::printMotorCommandsScaled() {
   Serial.print(m3_command_scaled);
   Serial.print(F(" m4_command: "));
   Serial.println(m4_command_scaled);
-}
-
-/**
- * @brief Print the servo commands to the Serial monitor.
- */
-void MotorDriver::printServoCommands() {
-  Serial.print(F("s1_command: "));
-  Serial.print(s1_command_PWM);
-  Serial.print(F(" s2_command: "));
-  Serial.print(s2_command_PWM);
 }
