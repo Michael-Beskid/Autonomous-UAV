@@ -1,10 +1,10 @@
 /**
- * @file AmphibiousAUV.h
+ * @file AutonomousUAV.h
  *
- * @brief Header file for main Amphibious.cpp file.
+ * @brief Header file for main AutonomousUAV.cpp file.
  *
  * @author Michael Beskid
- * Contact: mjbeskid@wpi.edu
+ * Contact: michael.beskid@gmail.com
  *
  */
 
@@ -59,7 +59,6 @@ enum autoStates missionState;
 const float POSITION_DB_RADIUS = 1.00; // Deadband radius for evaluating reached position targets [meters]
 const int ALTITUDE_DB_RADIUS = 250; // Deadband radius for evaluating altitude targets [milimetetrs]
 boolean motorsOff = false;
-boolean underwater = false;
 float altitude_des = 0.0; // mm
 float depth_des = 0.0;
 float target_posX = 0.0; // meters

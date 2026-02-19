@@ -14,7 +14,7 @@
  *   Motor 4: pin 3 ---> front left
  *
  * @author Michael Beskid
- * Contact: mjbeskid@wpi.edu
+ * Contact: michael.beskid@gmail.com
  *
  */
 

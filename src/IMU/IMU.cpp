@@ -13,7 +13,7 @@
  *   Green: SCL (pin 19)
  *
  * @author Michael Beskid
- * Contact: mjbeskid@wpi.edu
+ * Contact: michael.beskid@gmail.com
  *
  */
 

@@ -12,7 +12,7 @@
  *   Purple: SCL (pin 16)
  *
  * @author Michael Beskid
- * Contact: mjbeskid@wpi.edu
+ * Contact: michael.beskid@gmail.com
  *
  */
 

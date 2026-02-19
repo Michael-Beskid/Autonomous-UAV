@@ -4,7 +4,7 @@
  * @brief Header file for IMU class.
  *
  * @author Michael Beskid
- * Contact: mjbeskid@wpi.edu
+ * Contact: michael.beskid@gmail.com
  *
  */
 

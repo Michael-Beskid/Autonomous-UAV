@@ -4,7 +4,7 @@
  * @brief Contains controller variables and PID gains for attitude, altitude, depth, and position controllers.
  *
  * @author Michael Beskid
- * Contact: mjbeskid@wpi.edu
+ * Contact: michael.beskid@gmail.com
  *
  */
 

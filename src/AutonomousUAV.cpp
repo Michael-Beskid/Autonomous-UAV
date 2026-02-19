@@ -1,25 +1,15 @@
 /**
- * @file AmphibiousAUV.cpp
+ * @file AutonomousUAV.cpp
  *
- * @brief Flight computer for amphibious AUV.
+ * @brief Flight computer for autonomous UAV
  * 
- * Flight control software development for an autonmous quadrotor vehicle that is capable of combined at-will aerial
- *   and underwater operation. The vehicle can be operated in MANUAL and AUTONOMOUS modes. This project is a Major
- *   Qualifying Project (MQP) compelted in partial fulfillment of degrees in Aerospace Engineering and Robotics
- *   Engineering at Worcester Polytechnic Institute (WPI).
+ * Flight control software development for a quadrotor vehicle that is capable of autonomous station keeping,
+ *   waypoint navigation, and the capability to track, intercept, and catch a ball thrown in its vicinity.
  * 
- * Team Members: Michael Beskid, Ryan Brunelle, Calista Carrignan, Robert Devlin, Toshak Patel, & Kofi Sarfo.
- * 
- * The project is hosted on GitHub: https://github.com/Michael-Beskid/Amphibious-AUV.
- * 
- * Acknowdegments:
- *   This project is adapted from the dRehmFlight VTOL flight controller created my Nicholas Rehm. Thank you Nick
- *      for making your exellent work publicly avaialble to enable the development of cool proejct such as this one. 
- *      dRehmFlight VTOL on GitHub: https://github.com/nickrehm/dRehmFlight.
- *   Thank you to project advisors Michael Demetriou (AE Department) and Loris Fichera (RBE Department).
+ * The project is hosted on GitHub: https://github.com/Michael-Beskid/Autonomous-UAV.
  *
  * @author Michael Beskid
- * Contact: mjbeskid@wpi.edu
+ * Contact: michael.beskid@gmail.com
  *
  */
 
@@ -29,21 +19,19 @@
 #include <SoftwareSerial.h>                 // Serial communication
 #include "AmphibiousAUV.h"                  // General variables and function declarations
 #include "ControllerVariables.h"            // Controller variables
-#include "MotorDriver/MotorDriver.h"        // Motor and servo commands
+#include "MotorDriver/MotorDriver.h"        // Motor commands
+#include "StateEstimator/StateEstimator.h"  // State estimation class
 #include "IMU/IMU.h"                        // MPU 6050 IMU (6-axis accel/gyro)
-#include "GPS/GPS.h"                        // neo-m9n gps Module
+#include "GPS/GPS.h"                        // NEO-M9N GPS Module
 #include "RadioComm/RadioComm.h"            // Radio communication
-#include "DepthSensor/DepthSensor.h"        // BlueRobotics Bar30 depth sensor
-#include "AltitudeSensor/AltitudeSensor.h"  // A02YYUW waterproof ultrasonic rangefinder
-#include "TrackingCamera/TrackingCamera.h"  // Intel RealSense T265 tracking camera
+#include "LaserAltimeter/LaserAltimeter.h"  // TFmini Plus Micro Range Finder Sensor
 
 MotorDriver motors;
 RadioComm radio;
 IMU imu;
 GPS gps;
-DepthSensor depthSensor;
-AltitudeSensor altitudeSensor;
-TrackingCamera camera;                                      
+LaserAltimeter altimeter;         
+StateEstimator stateEstimator;                          
 
 /**
  * @brief Perform setup tasks before entering the main flight control loop.
@@ -66,19 +54,16 @@ void setup() {
   digitalWrite(13, HIGH);
 
   // Initialize sensors
-  //altitudeSensor.init();
-  //depthSensor.init();
-  //camera.init();
+  altimeter.init();
   imu.init();
   delay(500);
-  Serial.println("Sensor initialized");
+  Serial.println("Sensors initialized.");
 
   // Start in manual flight mode
   flightMode = MANUAL;
   manualState = MANUAL_STARTUP;
 
   motorsOff = false;
-  underwater = false;
 
   delay(5);
 
@@ -133,15 +118,11 @@ void loop() {
   imu.readData();
   // Update roll_IMU, pitch_IMU, and yaw_IMU angle estimates (degrees)
   imu.Madgwick(imu.getGyroX(), -imu.getGyroY(), -imu.getGyroZ(), -imu.getAccX(), imu.getAccY(), imu.getAccZ(), dt); 
-
-  // Get vehicle position from tracking camera
-  camera.recvSerial();
-  camera.readData(); 
   
   // Get altitude/depth (sampling at 10 Hz bc can't handle 2 kHz)
   slowLoopCounter++;
   if (slowLoopCounter == 100) { 
-    altitudeSensor.readAltitude();
+    altimeter.readAltitude();
   }  if (slowLoopCounter == 200) {
     //gps.read();
     slowLoopCounter = 0;
@@ -165,7 +146,6 @@ void loop() {
 
   // Command actuators
   motors.commandMotors(); // Send command pulses to each motor pin using OneShot125 protocol
-  motors.commandServos(); // Write PWM value to servo object
     
   // Get vehicle commands for next loop iteration
   radio.getCommands(); // Pull current available radio commands
@@ -196,9 +176,7 @@ void printDebugInfo() {
       //imu.printGyroData();
       //imu.printAccelData();
       //imu.printRollPitchYaw();
-      //altitudeSensor.printAltitude();
-      //depthSensor.printDepth();
-      //camera.printPosition();
+      //altimeter.printAltitude();
       //gps.printPosition();
       //printLoopRate();
     }
@@ -267,11 +245,6 @@ void controlMixer() {
   float m3 = thro_des + pitch_PID - roll_PID + yaw_PID; //Back right
   float m4 = thro_des - pitch_PID + roll_PID + yaw_PID; //Front left 
   motors.setMotorCommands(m1, m2, m3, m4);
-
-  //0.5 is centered servo, 0.0 is zero throttle if connecting to ESC for conventional PWM, 1.0 is max throttle
-  float s1 = 0;
-  float s2 = 0;
-  motors.setServoCommands(s1, s2);
  
 }
 
@@ -354,7 +327,7 @@ void getDesState() {
 void getDesStateAuto() {
 
   // PID Altitude Controller
-  error_altitude = altitude_des - altitudeSensor.getAltitude();
+  error_altitude = altitude_des - altimeter.getAltitude();
   integral_altitude = integral_altitude_prev + error_altitude*dt;
   integral_altitude = constrain(integral_altitude, -i_limit_altitude, i_limit_altitude); //Saturate integrator to prevent unsafe buildup
   derivative_altitude = (error_altitude - error_altitude_prev)/dt; 
@@ -534,7 +507,7 @@ void setTargetPos(float posX, float posY) {
 boolean reachedTarget() {
   return abs(target_posX - gps.getPosX()) < POSITION_DB_RADIUS 
     && abs(target_posY - gps.getPosY()) < POSITION_DB_RADIUS
-    && abs(altitude_des - altitudeSensor.getAltitude()) < ALTITUDE_DB_RADIUS;
+    && abs(altitude_des - altimeter.getAltitude()) < ALTITUDE_DB_RADIUS;
 }
 
 /**
