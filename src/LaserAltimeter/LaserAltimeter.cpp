@@ -26,22 +26,22 @@ void LaserAltimeter::init() {
 }
 
 /**
+ * @brief Read the laser rangefinder sensor.
+ *
+ *  Reads the latest altitude measurement from the sensor
+ *    and updates the current stored altitude value.
+ */
+void LaserAltimeter::pollSensorData() {
+    // TODO: Implement method to poll sensor data
+}
+
+/**
  * @brief Get the current altitude.
  *
  * @returns most recent altitude reading in milimeters.
  */
 float LaserAltimeter::getAltitude() {
    return altitude;
-}
-
-/**
- * @brief Read the laser rangefinder sensor.
- *
- *  Reads the latest altitude measurement from the sensor
- *    and updates the current stored altitude value.
- */
-void LaserAltimeter::readAltitude() {
-    // TODO: Implement method to poll sensor data
 }
 
 /**

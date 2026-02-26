@@ -55,11 +55,11 @@ void MotorDriver::init() {
  * @param m3 Scaled command for motor 3.
  * @param m4 Scaled command for motor 4.
  */
-void MotorDriver::setMotorCommands(float m1, float m2, float m3, float m4) {
-  m1_command_scaled = m1;
-  m2_command_scaled = m2;
-  m3_command_scaled = m3;
-  m4_command_scaled = m4;
+void MotorDriver::setMotorCommands(MotorSpeeds motorSpeeds) {
+  m1_command_scaled = motorSpeeds.m1;
+  m2_command_scaled = motorSpeeds.m2;
+  m3_command_scaled = motorSpeeds.m3;
+  m4_command_scaled = motorSpeeds.m4;
 }
 
 /**
@@ -78,6 +78,7 @@ void MotorDriver::scaleCommands() {
   m2_command_PWM = m2_command_scaled*125 + 125;
   m3_command_PWM = m3_command_scaled*125 + 125;
   m4_command_PWM = m4_command_scaled*125 + 125;
+
   //Constrain commands to motors within oneshot125 bounds
   m1_command_PWM = constrain(m1_command_PWM, 125, 250);
   m2_command_PWM = constrain(m2_command_PWM, 125, 250);
@@ -87,13 +88,31 @@ void MotorDriver::scaleCommands() {
 }
 
 /**
+ * @brief Command motors with input speeds
+ */
+void MotorDriver::commandMotors(MotorSpeeds motorSpeeds, bool throttle_cut) {
+
+  if (throttle_cut) { // Sets the mx_command_PWM values to minimum (120 is minimum for oneshot125 protocol
+    m1_command_PWM = 120;
+    m2_command_PWM = 120;
+    m3_command_PWM = 120;
+    m4_command_PWM = 120;
+  } else {
+    setMotorCommands(motorSpeeds);
+    scaleCommands();
+  }
+
+  sendCommands();
+}
+
+/**
  * @brief Send pulses to motor pins, oneshot125 protocol.
  * 
  * From dRehmFlight:
  *   My crude implimentation of OneShot125 protocol which sends 125 - 250us pulses to the ESCs (mXPin).
  *   The pulselengths being sent are mX_command_PWM, computed in scaleCommands().
  */
-void MotorDriver::commandMotors() {
+void MotorDriver::sendCommands() {
 
   int wentLow = 0;
   int pulseStart, timer;
@@ -145,23 +164,9 @@ void MotorDriver::commandMotors() {
  */
 void MotorDriver::armMotors() {
   for (int i = 0; i <= 50; i++) {
-    commandMotors();
+    sendCommands();
     delay(2);
   }
-}
-
-/**
- * @brief Directly set actuator outputs to minimum value.
- * 
- * From dRehmFlgiht:
- *   Sets the mx_command_PWM values to minimum (120 is minimum for oneshot125 protocol,
- *   0 is minimum for standard PWM servo library used).
- */
-void MotorDriver::throttleCut() {
-    m1_command_PWM = 120;
-    m2_command_PWM = 120;
-    m3_command_PWM = 120;
-    m4_command_PWM = 120;
 }
 
 /**

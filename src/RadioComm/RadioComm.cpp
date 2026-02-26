@@ -65,6 +65,20 @@ unsigned long RadioComm::getPWM(int ch_num) {
   return returnPWM;
 }
 
+RadioCommands RadioComm::getAllPWM()
+{
+    getCommands();
+    failSafe();
+    RadioCommands radioCommands;
+    radioCommands.roll_ch_pwm = channel_1_pwm;
+    radioCommands.pitch_ch_pwm = channel_2_pwm;
+    radioCommands.throttle_ch_pwm = channel_3_pwm;
+    radioCommands.yaw_ch_pwm = channel_4_pwm;
+    radioCommands.throttle_cut_ch_pwm = channel_5_pwm;
+    radioCommands.flight_mode_ch_pwm = channel_6_pwm;
+    return radioCommands;
+}
+
 /**
  * @brief Read current radio commands from interrupt service routine.
  * 

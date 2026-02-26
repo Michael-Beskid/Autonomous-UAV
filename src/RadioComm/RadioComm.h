@@ -11,7 +11,8 @@
 #ifndef _RADIOCOMM_H_
 #define _RADIOCOMM_H_
 
-#include "Arduino.h"
+#include <Arduino.h>
+#include "Common.h"
 
 class RadioComm {
 public:
@@ -21,6 +22,7 @@ public:
 	void init();
 	int getPPMpin();
 	unsigned long getPWM(int ch_num);
+	RadioCommands getAllPWM();
 	void setFailSafe();
 	void failSafe();
 	void getCommands();
@@ -44,8 +46,6 @@ private:
 	unsigned long channel_5_fs = 2000; //greater than 1500 = throttle cut
 	unsigned long channel_6_fs = 1000; //less than 1500 = MANUAL flight mode
 
-	/** Gets distance measurment from ultrasonic sensor
-	 */
 	unsigned long readRadioPWM(int ch_num);
 
 };

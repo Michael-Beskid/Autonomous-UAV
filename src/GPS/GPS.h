@@ -11,7 +11,7 @@
 #ifndef _GPS_H_
 #define _GPS_H_
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include <Wire.h>
 #include <SparkFun_Ublox_Arduino_Library.h>
 
@@ -21,7 +21,7 @@ public:
 	GPS();
 
     void init();
-    void read();
+    void pollSensorData();
     void setStartPos();
     float getPosX();
     float getPosY();

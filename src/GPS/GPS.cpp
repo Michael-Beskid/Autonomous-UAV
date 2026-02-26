@@ -47,7 +47,8 @@ void GPS::setStartPos() {
 /**
  * @brief Read the most recent latitude and longitude from the GPS module
  */
-void GPS::read() {
+void GPS::pollSensorData() {
+    // TODO: Check if new data is available first?
     latitude = myGPS.getLatitude();
     longitude = myGPS.getLongitude();
 

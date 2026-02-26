@@ -11,7 +11,7 @@
 #ifndef _LaserAltimeter_H_
 #define _LaserAltimeter_H_
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 class LaserAltimeter {
 public:
@@ -19,8 +19,8 @@ public:
 	LaserAltimeter();
 
 	void init();
+	void pollSensorData();
 	float getAltitude();
-	void readAltitude();
 	void printAltitude();
 
 private:
