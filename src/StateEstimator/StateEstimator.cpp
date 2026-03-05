@@ -154,7 +154,12 @@ float StateEstimator::invSqrt(float x) {
  * @brief Print the current attitude estimate to the Serial monitor.
  */
 void StateEstimator::printAttitudeEstimate() {
-   // TODO
+  Serial.print(F("roll: "));
+  Serial.print(theta);
+  Serial.print(F(" pitch: "));
+  Serial.print(phi);
+  Serial.print(F(" yaw: "));
+  Serial.println(psi);
 }
 
 /**

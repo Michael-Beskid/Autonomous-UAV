@@ -9,8 +9,8 @@
  * Wiring:
  *   Red: +5V
  *   Black: GND
- *   Blue: SDA (pin 18)
- *   Green: SCL (pin 19)
+ *   Blue: SDA0 (pin 18)
+ *   Green: SCL0 (pin 19)
  *
  * @author Michael Beskid
  * Contact: michael.beskid@gmail.com
@@ -242,6 +242,7 @@ void IMU::calculateError() {
   Serial.println(";");
 
   Serial.println("Paste these values in user specified variables section and comment out calculate_IMU_error() in void setup.");
+  while(true) {}
 }
 
 /**
@@ -266,16 +267,4 @@ void IMU::printAccelData() {
     Serial.print(AccY);
     Serial.print(F(" AccZ: "));
     Serial.println(AccZ);
-}
-
-/**
- * @brief Print the roll, pitch, and yaw angles in [deg] to the Serial monitor.
- */
-void IMU::printRollPitchYaw() {
-    Serial.print(F("roll: "));
-    Serial.print(roll_IMU);
-    Serial.print(F(" pitch: "));
-    Serial.print(pitch_IMU);
-    Serial.print(F(" yaw: "));
-    Serial.println(yaw_IMU);
 }

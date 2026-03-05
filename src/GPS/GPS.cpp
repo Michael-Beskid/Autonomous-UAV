@@ -8,8 +8,8 @@
  * Wiring:
  *   Red: +5V
  *   Black: GND
- *   Blue: SDA (pin 17)
- *   Purple: SCL (pin 16)
+ *   Blue: SDA1 (pin 17)
+ *   Green: SCL1 (pin 16)
  *
  * @author Michael Beskid
  * Contact: michael.beskid@gmail.com
@@ -42,6 +42,12 @@ void GPS::init() {
 void GPS::setStartPos() {
     initLatitude = myGPS.getLatitude();
     initLongitude = myGPS.getLongitude();
+    latitude = initLatitude;
+    longitude = initLongitude;
+    Serial.print(F("Lattitude: "));
+    Serial.println(initLatitude);
+    Serial.print(F("Longitude: "));
+    Serial.println(initLongitude);
 }
 
 /**
@@ -49,11 +55,17 @@ void GPS::setStartPos() {
  */
 void GPS::pollSensorData() {
     // TODO: Check if new data is available first?
-    latitude = myGPS.getLatitude();
-    longitude = myGPS.getLongitude();
+    if (updateCounter == 100) {
 
-    posX = (latitude - initLatitude)*metersPerDegreeLat*0.0000001;
-    posY = (longitude - initLongitude)*metersPerDegreeLong*0.0000001;
+        latitude = myGPS.getLatitude();
+        longitude = myGPS.getLongitude();
+
+        posX = (latitude - initLatitude)*metersPerDegreeLat*0.0000001;
+        posY = (longitude - initLongitude)*metersPerDegreeLong*0.0000001;
+
+        updateCounter = 0;
+    }
+    updateCounter += 1;
 }
 
 /**
@@ -84,8 +96,18 @@ float GPS::getPosY() {
 void GPS::printPosition() {
 	Serial.print(F("X-Position: "));
 	Serial.print(posX);
-	Serial.print(F(" m"));
+	Serial.print(F(" m,"));
     Serial.print(F("  Y-Position: "));
 	Serial.print(posY);
 	Serial.println(F(" m"));
+}
+
+/**
+ * @brief Print the (lat, long) coordinates of the quadrotor from GPS data
+ */
+void GPS::printLatLong() {
+	Serial.print(F("Latitude: "));
+	Serial.print(latitude);
+    Serial.print(F(",  Longitude: "));
+	Serial.println(longitude);
 }

@@ -26,6 +26,7 @@ public:
     float getPosX();
     float getPosY();
     void printPosition();
+    void printLatLong();
 
 private:
     static const int metersPerDegreeLat = 111319; // Constant for any longitude
@@ -33,6 +34,7 @@ private:
     int latitude, longitude;
     int initLatitude, initLongitude;
     float posX, posY;
+    int updateCounter;
 
 };
 

@@ -53,41 +53,49 @@ void setup() {
   // Begin USB Serial
   Serial.begin(500000);
 
+  // TEMP
+  delay(3000);
+
   // Set built in LED to turn on to signal startup
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
 
   // Initialize sensors
-  altimeter.init();
+  // altimeter.init();
   imu.init();
   delay(500);
   Serial.println("Sensors initialized.");
 
   // TODO: Initialize state estimator?
 
-  delay(5);
+  delay(50);
 
   // Initialize motor
   motors.init();
   delay(2000);
-  Serial.println("Motors initialized");
+  Serial.println("Motors initialized.");
 
   // Initialize radio communication
   radio.init();
   delay(20);
   //Attach interrupt and point to corresponding ISR function
   attachInterrupt(digitalPinToInterrupt(radio.getPPMpin()), ISR, CHANGE);
+  Serial.println("Radio initialized.");
+
+  altimeter.init();
+  Serial.println("Altimeter initialized.");
 
   // gps.init();
-  // delay(10000);
+  // Serial.println("GPS initialized.");
+  // delay(30000);
   // gps.setStartPos();
 
   // Get IMU error to zero accelerometer and gyro readings, assuming vehicle is level when powered up
-  //imu.calculateError();
+  // imu.calculateError();
 
   // Uncomment this to calibrate your ESCs by setting throttle stick to max, powering on, and lowering throttle to zero after the beeps
   // PROPS OFF. Code will not proceed past this if uncommented.
-  //calibrateESCs(); 
+  // calibrateESCs(); 
   
   // Indicate entering main loop with 3 quick blinks
   Serial.println("Ready to fly!");
@@ -120,7 +128,7 @@ void loop() {
   // Poll sensors for new data if available
   imu.pollSensorData();
   altimeter.pollSensorData();
-  gps.pollSensorData();
+  //gps.pollSensorData();
 
   // Update state estimate
       // TODO: Likely multiple update methods dependent on which sensor have new data
@@ -149,6 +157,8 @@ void loop() {
   radio.getCommands(); // Pull current available radio commands
   radio.failSafe(); // Prevent failures in event of bad receiver connection, defaults to failsafe values assigned in setup
 
+  printDebugInfo(); // Print data at 100 Hz for troubleshooting
+
   // Regulate loop rate
   loopRate(2000); // Do not exceed 2000Hz, all filter parameters tuned to 2000Hz by default
 
@@ -164,19 +174,20 @@ void loop() {
  */
 void printDebugInfo() {
   if (current_time - print_counter > 10000) {
-      print_counter = micros();
-      //radio.printData();
-      //printDesiredState();
-      //printPIDoutput();
-      //printFlightMode();
-      //motors.printMotorCommands();
-      //motors.printMotorCommandsScaled();
-      //imu.printGyroData();
-      //imu.printAccelData();
-      //imu.printRollPitchYaw();
-      //altimeter.printAltitude();
-      //gps.printPosition();
-      //printLoopRate();
+    print_counter = micros();
+    // radio.printData();
+    // printDesiredState();
+    // printPIDoutput();
+    // navigation.printFlightMode();
+    // motors.printMotorCommands();
+    // motors.printMotorCommandsScaled();
+    // imu.printGyroData();
+    // imu.printAccelData();
+    // stateEstimator.printAttitudeEstimate();
+    // altimeter.printAltitude();
+    // gps.printPosition();
+    // gps.printLatLong();
+    // printLoopRate();
     }
 }
 

@@ -41,7 +41,6 @@ public:
     void calculateError();
     void printGyroData();
     void printAccelData();
-    void printRollPitchYaw();
 
 private:
     float AccX, AccY, AccZ;
@@ -52,12 +51,12 @@ private:
     float roll_IMU_prev, pitch_IMU_prev;
     
     //IMU calibration parameters - calibrate IMU using calculate_IMU_error() in the void setup() to get these values, then comment out calculate_IMU_error()
-    float AccErrorX = 0.04;
-    float AccErrorY = 0.05;
-    float AccErrorZ = -0.10;
-    float GyroErrorX = -2.46;
-    float GyroErrorY = 0.54;
-    float GyroErrorZ = -2.05;
+    float AccErrorX = 0.02;
+    float AccErrorY = -0.07;
+    float AccErrorZ = -0.01;
+    float GyroErrorX = -1.70;
+    float GyroErrorY = 0.63;
+    float GyroErrorZ = -1.46;
 
     // Madgwick filter parameters - Defaults tuned for 2kHz loop rate; Do not touch unless you know what you are doing:
     float B_accel = 0.14;     //Accelerometer LP filter paramter, (MPU6050 default: 0.14. MPU9250 default: 0.2)
